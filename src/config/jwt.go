@@ -1,0 +1,10 @@
+package config
+
+import "github.com/golang-jwt/jwt/v4"
+
+var JWT_KEY = []byte("countbird99half34wayno1991sevenspread2159push70must22thus321814noonfacesolutionexpectanger26canoccur7730third42soilrain74rosewould20youngwar449069course66right22349burn92bankmiddledouble856923348setdomain27canshowanimal71174589sentenceand3122best1733forestblack14701course77reachbuy26904384colonygasdoproducttellonceseason4240")
+
+type JWTClaim struct {
+	Username string
+	jwt.RegisteredClaims
+}
