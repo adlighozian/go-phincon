@@ -29,5 +29,6 @@ func ConnectDatabase() {
 	database.AutoMigrate(&Company{})
 	database.AutoMigrate(&LogsPresent{})
 	database.AutoMigrate(&LogsLogin{})
+	database.AutoMigrate(&Home{})
 	DB = database
 }

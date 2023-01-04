@@ -1,4 +1,4 @@
-package logsLoginController
+package logsPresentController
 
 import (
 	"encoding/json"
@@ -10,13 +10,14 @@ import (
 )
 
 func Index(c *gin.Context) {
-	var log []models.LogsLogin
+	var log []models.LogsPresent
+	// models.DB.First(&log, "status = ?", "checkin")
 	models.DB.Find(&log)
 	c.JSON(http.StatusOK, gin.H{"status": "Success", "data": log})
 }
 
 func Show(c *gin.Context) {
-	var log []models.LogsLogin
+	var log []models.LogsPresent
 	id := c.Param("id")
 	err := models.DB.First(&log, id).Error
 	if err != nil {
@@ -33,25 +34,27 @@ func Show(c *gin.Context) {
 }
 
 func Create(c *gin.Context) {
-	var log models.LogsLogin
+	var log models.LogsPresent
 	if err := c.ShouldBindJSON(&log); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Status": "Error", "Message": err.Error()})
 		return
 	}
-	// log.LoginAt = time.Now()
+	// log.CheckIn = time.Now()
 
 	models.DB.Create(&log)
 	c.JSON(http.StatusOK, gin.H{"status": "Success", "data": log})
 }
 
 func Update(c *gin.Context) {
-	var log models.LogsLogin
+	var log models.LogsPresent
 	id := c.Param("id")
 
 	if err := c.ShouldBindJSON(&log); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Status": "Error", "Message": err.Error()})
 		return
 	}
+
+	// log.CheckOut = time.Now()
 
 	if models.DB.Model(&log).Where("id = ?", id).Updates(&log).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"status": "Error", "message": "Data gagal diupdate"})
@@ -62,7 +65,7 @@ func Update(c *gin.Context) {
 
 func Delete(c *gin.Context) {
 
-	var log models.LogsLogin
+	var log models.LogsPresent
 
 	var input struct {
 		Id json.Number

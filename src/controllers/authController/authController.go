@@ -14,28 +14,25 @@ import (
 
 func Login(c *gin.Context) {
 	var user models.User
-
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Status": "Error", "Message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"status": "Error", "message": err.Error()})
 		return
 	}
-
 	var auth models.User
 	if err := models.DB.Where("username = ?", user.Username).First(&auth).Error; err != nil {
 		switch err {
 		case gorm.ErrRecordNotFound:
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Status": "Error", "Message": "username atau password salah"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "Error", "message": "username atau password salah"})
 			return
 		default:
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Status": "Error", "Message": err.Error()})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": "Error", "message": err.Error()})
 			return
 		}
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(auth.Password), []byte(user.Password)); err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"Status": "Error", "Message": "username atau password salah"})
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "username atau password salah"})
 		return
 	}
-
 	expTime := time.Now().Add(time.Minute * 60)
 	claims := &config.JWTClaim{
 		Username: auth.Username,
@@ -44,21 +41,18 @@ func Login(c *gin.Context) {
 			ExpiresAt: jwt.NewNumericDate(expTime),
 		},
 	}
-
 	tokenAlgo := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	token, err := tokenAlgo.SignedString(config.JWT_KEY)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Status": "Error", "Message": err.Error()})
 		return
 	}
-
 	c.SetCookie("token", token, 0, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{"Status": "Login berhasil", "Token": config.JWT_KEY})
 }
 
 func Register(c *gin.Context) {
 	var user models.User
-
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Status": "Error", "Message": err.Error()})
 		return
